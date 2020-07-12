@@ -90,6 +90,8 @@
 #define signed
 typedef unsigned short uint16_t;
 typedef unsigned char uint8_t;
+#else
+#include <stdint.h>
 #endif
 
 #ifdef __Z88DK
