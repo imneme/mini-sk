@@ -37,6 +37,13 @@ Mini-SK is designed to be simple and minimal, specifically targetting
 “small” machines of the past.  The code is written in C89 (ANSI C) to allow
 it to be compiled with older compilers on ancient systems.
 
+## Demos
+
+This is a demo of Mini-SK running on a 16K ZX Spectrum (with
+approximately 8KB of usable memory).
+
+<iframe src="https://player.vimeo.com/video/431042094" width="640" height="480" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+
 ## Building
 
 Optional defines
