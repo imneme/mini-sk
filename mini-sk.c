@@ -276,7 +276,7 @@ static struct app_node apps[MAX_APPS+1];
 #endif
 atom app_freelist;
 
-static int reductions = 0;
+static unsigned int reductions = 0;
 
 atom alloc_app(atom func, atom arg);
 char free_app_all(atom a) __z88dk_fastcall;
@@ -579,7 +579,7 @@ int main()
     SANITY_CHECK
 	print_atom_reduced(a); putchar('\n');
     SANITY_CHECK
-	printf("\n%d reductions, %d max appnodes\n", reductions, max_apps);
+	printf("\n%u reductions, %d max appnodes\n", reductions, max_apps);
 	free_app_all(a);
     }
     return 0;
