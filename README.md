@@ -79,35 +79,35 @@ clang -O3 -DNDEBUG -DMAX_APPS=32767 -DMAX_STACK=32767 -Wall -o mini-sk  mini-sk.
 ```
 ### CP/M -- Z88DK
 ```
-zcc +cpm -DNDEBUG -SO3 --max-allocs-per-node500000 -startup=0 -clib=sdcc_iy mini-sk.c -o mini-sk -create-app
+zcc +cpm -DNDEBUG -SO3 --max-allocs-per-node200000 -startup=0 -clib=sdcc_iy mini-sk.c -o mini-sk -create-app
 ```
 
 ### CP/M -- Hi Tech C v3.09
 ```
-c -v -DNDEBUG -O mini-sk.c
+c -DNDEBUG -O mini-sk.c
 ```
 
 ### ZX Spectrum (16k) -- Z88DK & MINILIB
 ```
-zcc +zx -DUSE_MINILIB -DNDEBUG -DTINY_VERSION -SO3 --max-allocs-per-node500000 -clib=sdcc_ix --reserve-regs-iy -pragma-define:CRT_ZX_INIT=1 mini-sk.oc -o mini-sk -Iz88dk-minilib -Ld88dk-minilib -lmini -startup=" -1" -zorg:27136 -create-app
+zcc +zx -DUSE_MINILIB -DNDEBUG -DTINY_VERSION -SO3 --max-allocs-per-node200000 -clib=sdcc_ix --reserve-regs-iy -pragma-define:CRT_ZX_INIT=1 mini-sk.oc -o mini-sk -Ispectrum-minilib -Lspectrum-minilib -lmini -startup=" -1" -zorg:27136 -create-app
 ```
 
 ### ZX Spectrum (48k) -- Z88DK & MINILIB
 ```
-zcc +zx -DUSE_MINILIB -DNDEBUG -SO3 --max-allocs-per-node500000 -clib=sdcc_ix --reserve-regs-iy -pragma-define:CRT_ZX_INIT=1 mini-sk.c -o mini-sk -I../Spectrum/APIs/spectrum-rom -L../Spectrum/APIs/spectrum-rom -lmini -startup=" -1" -zorg:31232 -create-app
+zcc +zx -DUSE_MINILIB -DNDEBUG -SO3 --max-allocs-per-node200000 -clib=sdcc_ix --reserve-regs-iy -pragma-define:CRT_ZX_INIT=1 mini-sk.c -o mini-sk -Ispectrum-minilib -Lspectrum-minilib -lmini -startup=" -1" -zorg:31232 -create-app
 ```
 
 ### ZX Spectrum (48k) -- Z88DK
 ```
-zcc +zx -DNDEBUG  --max-allocs-per-node500000 -SO3 -startup=8 -clib=sdcc_iy mini-sk.c -o mini-sk -zorg:24064 -pragma-define:CRT_ITERM_INKEY_REPEAT_START=8000 -pragma-define:CRT_ITERM_INKEY_REPEAT_RATE=250 -pragma-redirect:CRT_OTERM_FONT_FZX=_ff_dkud1_Sinclair -create-app
+zcc +zx -DNDEBUG -SO3 --max-allocs-per-node200000 -startup=8 -clib=sdcc_iy mini-sk.c -o mini-sk -zorg:24064 -pragma-define:CRT_ITERM_INKEY_REPEAT_START=8000 -pragma-define:CRT_ITERM_INKEY_REPEAT_RATE=250 -pragma-redirect:CRT_OTERM_FONT_FZX=_ff_dkud1_Sinclair -create-app
 ```
 
 ### ZX Spectrum Next -- Z88DK & MINILIB
 ```
-zcc +zxn -no-cleanup -v -s -m -DUSE_MINILIB -DNDEBUG -SO3 -clib=sdcc_ix --reserve-regs-iy -pragma-define:CRT_ZXN_INIT=1 -s -m mini-sk.c -o mini-sk -I../Spectrum/APIs/spectrum-rom -L../Spectrum/APIs/spectrum-rom -lmini -startup=" -1" -zorg:30720 -create-app
+zcc +zxn -no-cleanup -DUSE_MINILIB -DNDEBUG -SO3 --max-allocs-per-node200000 -clib=sdcc_ix --reserve-regs-iy -pragma-define:CRT_ZXN_INIT=1 mini-sk.c -o mini-sk -Ispectrum-minilib -Lspectrum-minilib -lmini -startup=" -1" -zorg:30720 -create-app
 ```
 
 ### ZX Spectrum Next -- Z88DK
 ```
-zcc +zxn -DNDEBUG --max-allocs-per-node500000 -SO3 -startup=8 -clib=sdcc_iy mini-sk.c -o mini-sk -zorg:24064 -pragma-define:CRT_ITERM_INKEY_REPEAT_START=8000 -pragma-define:CRT_ITERM_INKEY_REPEAT_RATE=250 -pragma-redirect:CRT_OTERM_FONT_FZX=_ff_dkud1_Sinclair -create-app
+zcc +zxn -DNDEBUG --max-allocs-per-node200000 -SO3 -startup=8 -clib=sdcc_iy mini-sk.c -o mini-sk -zorg:24064 -pragma-define:CRT_ITERM_INKEY_REPEAT_START=8000 -pragma-define:CRT_ITERM_INKEY_REPEAT_RATE=250 -pragma-redirect:CRT_OTERM_FONT_FZX=_ff_dkud1_Sinclair -create-app
 ```
