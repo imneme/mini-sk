@@ -566,7 +566,7 @@ int main()
 	SANITY_CHECK
 	reductions = 0;
 	max_apps = current_apps;
-#if USE_MINILIB
+#if defined(USE_MINILIB) && defined(__SPECTRUM)
 	input_prompt = "Term> ";
 #else
 	printf("\nTerm> ");
