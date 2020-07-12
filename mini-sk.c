@@ -39,10 +39,6 @@
  * -DUSE_MINILIB
  *     Under z88dk (Z80), Minilib provides an alternative crt and stdio
  *     library to minimize space usage.
- * -DRECURSIVE_REDUCE
- *     An alternative (easier to understand perhaps) implementation of
- *     reduce that uses recursion rather than iteration and an explicit
- *     stack.
  * -DDEBUG
  *     Produce voluminous debugging output.
  * -DNDEBUG
@@ -656,8 +652,6 @@ atom replace(atom orig, atom reduced)
     return reduced;
 }
 
-#ifndef RECURSIVE_REDUCE
-
 #ifndef MAX_STACK
 #define MAX_STACK 512
 #endif
@@ -796,102 +790,5 @@ not_reduced:
     rs_top_ptr += stack_len;
     return *(rs_top_ptr - 1);
 }
-
-#else
-atom reduce(atom) __z88dk_fastcall;
-
-atom red(atom a0) __z88dk_fastcall
-{
-    atom f1, a1, f2, a2, f3, a3;
-    SANITY_CHECK
-    assert(!IS_LIT(a0));
-    assert(NODE_REFCOUNT(a0) != 0x8888);
-    f1 = NODE_FUNC(a0);
-    a1 = NODE_ARG(a0);
-    if (IS_LIT(f1)) {
-	assert(LIT_REQARGS(ATOM_TO_LIT(f1)) != 1);
-	goto not_reduced;
-    }
-    f2 = NODE_FUNC(f1);
-    a2 = NODE_ARG(f1);
-    if (IS_LIT(f2)) {
-	if (LIT_REQARGS(ATOM_TO_LIT(f2)) != 2)
-	    goto not_reduced;
-	assert(ATOM_TO_LIT(f2) == LIT_K);
-	/* a0@(f1@(f2@K a2@c) a1@x) */
-	copy_atom(a2);
-	return replace(a0,a2);
-    }
-    f3 = NODE_FUNC(f2);
-    a3 = NODE_ARG(f2);
-    if (IS_LIT(f3)) {
-	if (LIT_REQARGS(ATOM_TO_LIT(f3)) != 3)
-	    goto not_reduced;
-	switch(LIT_SUBTYPE(f3)) {
-	case LIT_SUBTYPE(LIT_S): {
-	    /*  a0@(f1@(f2@(f3@S a3@f) a2@g) a1@x) */
-	    atom fx = alloc_app(copy_atom(a3),copy_atom(a1));
-	    atom gx = alloc_app(copy_atom(a2),copy_atom(a1));
-	    return replace(a0,alloc_app(fx,gx));
-	}
-        case LIT_SUBTYPE(LIT_B): {
-            /* a0@(f1@(f2@(f3@B a3@f) a2@g) a1@x) */
-            atom fgx = alloc_app(copy_atom(a3),
-				 alloc_app(copy_atom(a2),copy_atom(a1)));
-	    return replace(a0,fgx);
-	}
-        case LIT_SUBTYPE(LIT_C): {
-            /* a0@(f1@(f2@(f3@C a3@f) a2@y) a1@x) */
-	    atom fxy = alloc_app(alloc_app(copy_atom(a3),copy_atom(a1)),
-				 copy_atom(a2));
-	    return replace(a0,fxy);
-	}
-	}
-    }
-not_reduced:
-    return NOT_REDUCED;
-}
-
-atom reduct(atom a) __z88dk_fastcall
-{
-    atom reduced;
-    if (IS_LIT(a))
-        return NOT_REDUCED;
-    if (NODE_FUNC(a) == LIT_TO_ATOM(LIT_I)) {
-	reduced = reduce(NODE_ARG(a));
-	NODE_ARG(a) = LIT_TO_ATOM(LIT_I);
-	return replace(a, reduced);
-    }
-    reduced = red(a);
-    if (reduced != NOT_REDUCED)
-	return reduced;
-    reduced = reduct(NODE_FUNC(a));
-    if (reduced == NOT_REDUCED)
-        return reduced;
-    for (;;) {
-        ++reductions;
-        NODE_FUNC(a) = reduced;
-        reduced = reduct(reduced);
-        if (reduced == NOT_REDUCED)
-            return a;
-    }
-}
-
-atom reduce(atom a) __z88dk_fastcall
-{
-    for (;;) {
-	atom aprime = reduct(a);
-	SANITY_CHECK
-	    if (aprime == NOT_REDUCED) {
-		/* FIXME, highly questionable */
-/*		if (!IS_LIT(a) && ATOM_TO_LIT(NODE_FUNC(a)) < LIT_I)
-		NODE_ARG(a) = reduce(NODE_ARG(a)); */
-		return a;
-	    }   
-	++reductions;
-	a = aprime;
-    }
-}
-#endif
 
 

@@ -57,12 +57,6 @@ Optional defines
     Under z88dk (Z80), Minilib provides an alternative crt and stdio
     library to minimize space usage.
 
-* `-DRECURSIVE_REDUCE`
-
-    An alternative (easier to understand perhaps) implementation of
-    reduce that uses recursion rather than iteration and an explicit
-    stack.
-
 * `-DDEBUG`
 
     Produce voluminous debugging output.
