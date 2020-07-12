@@ -98,6 +98,8 @@ typedef unsigned char uint8_t;
 #define __z88dk_fastcall
 #endif
 
+#define ARRAY_SIZE(array) sizeof(array)/sizeof(*(array))
+
 /* Note, we can't use varargs macros in this vanilla C89-style code */
 #ifdef DEBUG
 #define debug_printf(args) printf args
@@ -152,19 +154,7 @@ short(*getch)(void) = fgetchar;
 short(*ungetch)(char c) = fungetchar;
 #endif
 
-/*
- * Literals representing the provided combinators are represented using
- * a coding where the high byte represents the required number of arguments
- * and the low byte represents the operation number and corresponds to an
- * entry in the reducers array declared later in the file.
- */
-
-#define LIT_I   0x0100
-#define LIT_K   0x0201
-#define LIT_S   0x0302
-#define LIT_B   0x0303
-#define LIT_C   0x0304
-#define LIT_END 0x0400
+typedef unsigned short literal;
 
 /* An atom is a 16-bit value that is either a 15-bit integer (i.e., it holds a
  * literal), typically representing a combinator, or it is a reference to an
@@ -233,6 +223,33 @@ typedef uint16_t atom;
 #endif
 #endif
 
+/*
+ * Literals representing the provided combinators are represented using
+ * a coding where the high byte represents the required number of arguments
+ * and the low byte represents the operation number and corresponds to an
+ * entry in the reducers array declared later in the file.
+ */
+
+#define LIT_I   0x0100
+#define LIT_K   0x0201
+#define LIT_S   0x0302
+#define LIT_B   0x0303
+#define LIT_C   0x0304
+#define LIT_END 0x0400
+
+struct repr {
+    char key;
+    literal value;
+};
+
+struct repr reps[] = {
+    {'I', LIT_I},
+    {'K', LIT_K},
+    {'S', LIT_S},
+    {'B', LIT_B},
+    {'C', LIT_C}
+};
+
 struct app_node {
     atom func;
     atom arg;
@@ -299,25 +316,15 @@ void print_atom(atom a) __z88dk_fastcall
 {
     if (IS_LIT(a)) {
 	char c;
-	switch (ATOM_TO_LIT(a)) {
-	case LIT_I:
-	    c = 'I';
-	    break;
-	case LIT_K:
-	    c = 'K';
-	    break;
-	case LIT_S:
-	    c = 'S';
-	    break;
-	case LIT_B:
-	    c = 'B';
-	    break;
-	case LIT_C:
-	    c = 'C';
-	    break;
-	default:
-	    assert(LIT_REQARGS(ATOM_TO_LIT(a)) == 0);
-	    c = LIT_SUBTYPE(ATOM_TO_LIT(a))+'a';
+	unsigned char i;
+	unsigned short lit = ATOM_TO_LIT(a);
+	i = LIT_SUBTYPE(lit);
+	if (i < ((unsigned char) ARRAY_SIZE(reps))
+	    && LIT_REQARGS(reps[i].value) == LIT_REQARGS(lit)) {
+	    c = reps[i].key;
+	} else {
+            assert(LIT_REQARGS(ATOM_TO_LIT(a)) == 0);
+            c = i+'a';
 	}
 	putchar(c);
     } else {
@@ -455,16 +462,6 @@ again:
     case ')':
     case '\n':
 	goto again;
-    case 'I':
-	return LIT_TO_ATOM(LIT_I);
-    case 'K':
-	return LIT_TO_ATOM(LIT_K);
-    case 'S':
-	return LIT_TO_ATOM(LIT_S);
-    case 'B':
-	return LIT_TO_ATOM(LIT_B);
-    case 'C':
-	return LIT_TO_ATOM(LIT_C);
     case '(':
     case '@': {
 	atom lhs = read_atom();
@@ -520,7 +517,12 @@ again:
     default:
 	if (c >= 'a' && c <= 'z')
 	    return LIT_TO_ATOM(c-'a');
-
+	{
+	    unsigned char i;
+	    for (i = 0; i < (unsigned char) ARRAY_SIZE(reps); ++i)
+		if (reps[i].key == (char) c)
+		    return LIT_TO_ATOM(reps[i].value);
+	}
 	printf("Unrecognized char '%c'\n", c);
 	goto again;
     }
@@ -707,7 +709,7 @@ atom red_flip(atom curr) __z88dk_fastcall
 }
 
 
-reducer_fn reducers[5] = {
+reducer_fn reducers[] = {
     red_ident,
     red_const,
     red_fusion,
