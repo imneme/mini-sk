@@ -329,7 +329,7 @@ void print_atom(atom a) __z88dk_fastcall
 	print_atom(NODE_FUNC(a));
 	putchar(' ');
 	if (print_reduced && IS_LIT(NODE_FUNC(a)) 
-	    && LIT_REQARGS(ATOM_TO_LIT(a))) {
+	    && LIT_REQARGS(ATOM_TO_LIT(NODE_FUNC(a))) == 0) {
 	    NODE_ARG(a) = reduce(NODE_ARG(a));
 	}
 	print_atom(NODE_ARG(a));
