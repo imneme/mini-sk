@@ -656,7 +656,7 @@ atom replace(atom orig, atom reduced)
     return reduced;
 }
 
-#ifndef OLD_METHOD
+#ifndef RECURSIVE_REDUCE
 
 #ifndef MAX_STACK
 #define MAX_STACK 512
