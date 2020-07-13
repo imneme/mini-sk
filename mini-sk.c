@@ -241,6 +241,8 @@ typedef uint16_t atom;
 #define LIT_mi  0x0208
 #define LIT_tm  0x0209
 #define LIT_dv  0x020a
+#define LIT_F   0x020b  /* (K I) */
+#define LIT_J   0x020c  /* (C I) */
 #define LIT_END 0x0400
 
 struct repr {
@@ -259,7 +261,9 @@ struct repr reps[] = {
     {'+', LIT_pl},
     {'-', LIT_mi},
     {'*', LIT_tm},
-    {'/', LIT_dv}
+    {'/', LIT_dv},
+    {'F', LIT_F},
+    {'J', LIT_J}
 };
 
 struct app_node {
@@ -715,6 +719,18 @@ atom red_const(atom curr) __z88dk_fastcall
     return replace(curr, copy_atom(NODE_ARG(rs_top_ptr[0])));
 }
 
+atom red_false(atom curr) __z88dk_fastcall
+{
+    return replace(curr, copy_atom(NODE_ARG(curr)));
+}
+
+atom red_jump(atom curr) __z88dk_fastcall
+{
+    atom yx = alloc_app(copy_atom(NODE_ARG(curr)), 
+			copy_atom(NODE_ARG(rs_top_ptr[0])));
+    return replace(curr, yx);
+}
+
 atom red_fusion(atom curr) __z88dk_fastcall
 {
     atom fx = alloc_app(copy_atom(NODE_ARG(rs_top_ptr[0])),
@@ -815,7 +831,9 @@ reducer_fn reducers[] = {
     red_plus,
     red_minus,
     red_times,
-    red_div
+    red_div,
+    red_false,
+    red_jump
 };
 
 atom reduce(atom curr) __z88dk_fastcall
