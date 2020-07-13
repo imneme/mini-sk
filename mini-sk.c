@@ -236,6 +236,7 @@ typedef uint16_t atom;
 #define LIT_B   0x0303
 #define LIT_C   0x0304
 #define LIT_Y   0x0105
+#define LIT_P   0x0106
 #define LIT_END 0x0400
 
 struct repr {
@@ -249,7 +250,8 @@ struct repr reps[] = {
     {'S', LIT_S},
     {'B', LIT_B},
     {'C', LIT_C},
-    {'Y', LIT_Y}
+    {'Y', LIT_Y},
+    {'P', LIT_P}
 };
 
 struct app_node {
@@ -728,13 +730,22 @@ atom red_y(atom curr) __z88dk_fastcall
     return alloc_app(copy_atom(NODE_ARG(curr)), curr);
 }
 
+atom red_putchar(atom curr) __z88dk_fastcall
+{
+    atom reduced = reduce(NODE_ARG(curr));
+    NODE_ARG(curr) = reduced;
+    putchar(IS_LIT(reduced) ? LIT_SUBTYPE(ATOM_TO_LIT(reduced)) : '*');
+    return replace(curr,LIT_TO_ATOM(LIT_I));
+}
+
 reducer_fn reducers[] = {
     red_ident,
     red_const,
     red_fusion,
     red_compose,
     red_flip,
-    red_y
+    red_y,
+    red_putchar
 };
 
 atom reduce(atom curr) __z88dk_fastcall
