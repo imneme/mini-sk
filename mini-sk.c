@@ -312,21 +312,25 @@ atom reduce(atom curr) __z88dk_fastcall;
 
 uint8_t print_reduced = 0;
 
+void print_lit(literal lit) __z88dk_fastcall
+{
+    char c;
+    unsigned char i;
+    i = LIT_SUBTYPE(lit);
+    if (i < ((unsigned char) ARRAY_SIZE(reps))
+	&& LIT_REQARGS(reps[i].value) == LIT_REQARGS(lit)) {
+	c = reps[i].key;
+    } else {
+	assert(LIT_REQARGS(lit) == 0);
+	c = i+'a';
+    }
+    putchar(c);
+}
+
 void print_atom(atom a) __z88dk_fastcall
 {
     if (IS_LIT(a)) {
-	char c;
-	unsigned char i;
-	unsigned short lit = ATOM_TO_LIT(a);
-	i = LIT_SUBTYPE(lit);
-	if (i < ((unsigned char) ARRAY_SIZE(reps))
-	    && LIT_REQARGS(reps[i].value) == LIT_REQARGS(lit)) {
-	    c = reps[i].key;
-	} else {
-            assert(LIT_REQARGS(ATOM_TO_LIT(a)) == 0);
-            c = i+'a';
-	}
-	putchar(c);
+	print_lit(ATOM_TO_LIT(a));
     } else {
 	assert(NODE_REFCOUNT(a) != 0x8888);
 	assert(NODE_REFCOUNT(a) != 0x9e37);
