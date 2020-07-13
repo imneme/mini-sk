@@ -812,9 +812,11 @@ literal eval_two_lits(atom curr) __z88dk_fastcall
     atom reduced_lhs = reduce(NODE_ARG(rs_top_ptr[1]));
     NODE_ARG(rs_top_ptr[1]) = reduced_lhs;
     other_lit = IS_LIT(reduced_lhs) ? ATOM_TO_LIT(reduced_lhs) : 0;
-    atom reduced_rhs = reduce(NODE_ARG(curr));
-    NODE_ARG(curr) = reduced_lhs;
-    return  IS_LIT(reduced_rhs) ? ATOM_TO_LIT(reduced_rhs) : 0;
+    {
+	atom reduced_rhs = reduce(NODE_ARG(curr));
+	NODE_ARG(curr) = reduced_lhs;
+	return  IS_LIT(reduced_rhs) ? ATOM_TO_LIT(reduced_rhs) : 0;
+    }
     /* return (((uint32_t) lhs_lit) << 16) | rhs_lit; */
 }
 
