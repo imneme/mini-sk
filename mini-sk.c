@@ -617,6 +617,14 @@ int main()
 #endif
 	a = read_atom();
 	putchar('\n');
+	{
+	    char c;
+	    do {
+		c = getch();
+	    } while (c == ' ' || c == ')');
+	    if (c != '\n')
+		ungetch(c);
+	}
 	print_atom(a); printf("\n--->\n");
     SANITY_CHECK
 	a = reduce(a);
