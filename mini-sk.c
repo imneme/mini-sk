@@ -235,6 +235,7 @@ typedef uint16_t atom;
 #define LIT_S   0x0302
 #define LIT_B   0x0303
 #define LIT_C   0x0304
+#define LIT_Y   0x0105
 #define LIT_END 0x0400
 
 struct repr {
@@ -247,7 +248,8 @@ struct repr reps[] = {
     {'K', LIT_K},
     {'S', LIT_S},
     {'B', LIT_B},
-    {'C', LIT_C}
+    {'C', LIT_C},
+    {'Y', LIT_Y}
 };
 
 struct app_node {
@@ -381,7 +383,7 @@ atom string_to_atom(const char *cp) __z88dk_fastcall
 }
 
 const char* builtins[][2] = {
-    { "y", "@@B@@SII@@CB@@SII" },
+    { "y", "Y" /* "@@B@@SII@@CB@@SII" */ },
     { "t", "K" },
     { "f", "@KI" },
     { "and", "@@CC@KI" },
@@ -440,10 +442,10 @@ const char* builtins[][2] = {
     { "exlist2", "@@$cons#2@@$cons#0@@$cons#7@@$cons#5@@$cons#1@@$cons#3@@$cons#6$nil" },
     { "fib", "@@C@@C@@CI@@S@@BC@@B@CI@@CI@KI@@S@@BS@@B@BB@@CIK@@CI@KI@@C@@CI@KIIK" },
     { "fact", "@@C@@C@@CI@@B@SB@@CB@SB@KII" },
-    { "tnpo", "@@B@@@SII@@B@CI@@C@@BC@@B@BC@@B@C@@BB@@CI@@CB@SB@@B@S@@BS@C@@C@@C@@C@@CI@@BK@CIK@KI@@C@@CIK@K@KI@@C@@BB@@BB@@SII@@B@C@@BC@@B@CI@@S@@S@@C@@CI@@C@@CI@KIKK@@BC@@C@@BC@@C@@BB@@CI@@B@SBC@@BKKI@@B@SB@@S@@BS@BB@@S@@BS@BBI@SB@KI@@C@@BC@CI@KI" },
-    { "blc", "@@@SII@@B@B@CI@@B@B@B@SI@@B@@S@@BS@@B@BC@@B@B@BB@@B@B@BS@@B@B@CB@@S@@BBB@@B@S@@BC@@B@BS@@B@CB@@CB@@C@@BBB@C@@BC@CI@@C@@BBB@@C@@BBBS@@B@S@@BB@@BS@@B@SI@@CB@CI@@B@B@B@BK@@B@BC@@C@@BBB@@C@@BBB@@B@CB@CI@@SII" },
+    { "tnpo", "@@B@$y@@B@CI@@C@@BC@@B@BC@@B@C@@BB@@CI@@CB@SB@@B@S@@BS@C@@C@@C@@C@@CI@@BK@CIK#0@@C@@CIK@K#0@@C@@BBB@@B@C@@BC@@B@CI@@S@@S@@C@@CI@@C@@CI#0KK@@BC@@C@@BC@@C@@BB@@CI@@B@SBC@@BKKI@@B@SB@@S@@BS@BB@@S@@BS@BBI@SB#0@@C@@BC@CI#0" },
+    { "blc", "@$y@@B@B@CI@@B@B@B@SI@@S@@BS@@B@BC@@B@B@BB@@B@B@BS@@B@B@CB@@S@@BBB@@B@S@@BC@@B@BS@@B@CB@@CB@@C@@BBB@C$pair@@C@@BBB@@C@@BBBS@@B@S@@BB@@BS@@B@SI@@CB@CI@@B@B@B@BK@@B@BC@@C@@BBB@@C@@BBB@@B@CB@CI" },
     { "runblc", "@$blc K" },
-    { "rjot", "@@@SII@@C@@BC@@C@@BC@@B@CI@@B@B@BK@@B@B@BK@@B@@S@@BC@@B@BS@@B@CB@BB@@C@@BC@@CCSK@@SIIII" },
+    { "rjot", "@$y@@B@C@@C$case I@@S@@BC@@B@BS@@B@CB@@B@BS@BK@@C@@BC@@CCSK" },
     { "jot", "@@B$rjot$rev" },
     { "diag", "@@C@@BC@@B@B$y@@C@@BC@@B@BB@@B@BS@@B@B@B$append@@C@@BS@@B@BB$zipwith@@B@B$rev@C$take@@CB$succ I" },
     { "diagapp", "@@C@@B$y@@C@@BB@@BS@@B@B$append@@S@@BB$zipapp@@B@B$rev@C$take@@CB$succ I" },
@@ -712,13 +714,26 @@ atom red_flip(atom curr) __z88dk_fastcall
     return replace(curr,alloc_app(fy,x));
 }
 
+atom red_y(atom curr) __z88dk_fastcall
+{
+    /*
+     * Note: It migtht be tempting to write
+     *     return replace(curr,alloc_app(copy_atom(NODE_ARG(curr)),
+     *      				       copy_atom(curr))); 
+     * but that would make a cycle, and that's not cool given that we use
+     * reference countining.  Thus this is one of the few rules where we
+     * don't use replace.
+     */
+    return alloc_app(copy_atom(NODE_ARG(curr)), curr);
+}
 
 reducer_fn reducers[] = {
     red_ident,
     red_const,
     red_fusion,
     red_compose,
-    red_flip
+    red_flip,
+    red_y
 };
 
 atom reduce(atom curr) __z88dk_fastcall
