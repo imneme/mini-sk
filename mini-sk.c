@@ -781,63 +781,58 @@ atom red_putchar(atom curr) __z88dk_fastcall
     return replace(curr,LIT_TO_ATOM(LIT_I));
 }
 
-uint32_t eval_two_lits(atom curr) __z88dk_fastcall
+literal other_lit;
+
+literal eval_two_lits(atom curr) __z88dk_fastcall
 {
     atom reduced_lhs = reduce(NODE_ARG(rs_top_ptr[0]));
     NODE_ARG(rs_top_ptr[0]) = reduced_lhs;
+    other_lit = IS_LIT(reduced_lhs) ? ATOM_TO_LIT(reduced_lhs) : 0;
     atom reduced_rhs = reduce(NODE_ARG(curr));
     NODE_ARG(curr) = reduced_lhs;
-    literal lhs_lit = IS_LIT(reduced_lhs) ? ATOM_TO_LIT(reduced_lhs) : 0;
-    literal rhs_lit = IS_LIT(reduced_rhs) ? ATOM_TO_LIT(reduced_rhs) : 0;
-    return (((uint32_t) lhs_lit) << 16) | rhs_lit;
+    return  IS_LIT(reduced_rhs) ? ATOM_TO_LIT(reduced_rhs) : 0;
+    /* return (((uint32_t) lhs_lit) << 16) | rhs_lit; */
+}
+
+atom builtin_2c_result(atom result) __z88dk_fastcall
+{
+    return replace(rs_top_ptr[1], result);
 }
 
 atom red_plus(atom curr) __z88dk_fastcall
 {
-    uint32_t r = eval_two_lits(curr);
-    uint16_t lhs_lit = (uint16_t) (r >> 16);
-    uint16_t rhs_lit = (uint16_t) r;
-    return replace(curr,LIT_TO_ATOM((lhs_lit+rhs_lit) & 0x7fff));
+    literal rhs_lit = eval_two_lits(curr);
+    return builtin_2c_result(LIT_TO_ATOM((other_lit+rhs_lit) & 0x7fff));
 }
 
 atom red_minus(atom curr) __z88dk_fastcall
 {
-    uint32_t r = eval_two_lits(curr);
-    uint16_t lhs_lit = (uint16_t) (r >> 16);
-    uint16_t rhs_lit = (uint16_t) r;
-    return replace(curr,LIT_TO_ATOM((lhs_lit-rhs_lit) & 0x7fff));
+    literal rhs_lit = eval_two_lits(curr);
+    return builtin_2c_result(LIT_TO_ATOM((other_lit-rhs_lit) & 0x7fff));
 }
 
 atom red_times(atom curr) __z88dk_fastcall
 {
-    uint32_t r = eval_two_lits(curr);
-    uint16_t lhs_lit = (uint16_t) (r >> 16);
-    uint16_t rhs_lit = (uint16_t) r;
-    return replace(curr,LIT_TO_ATOM((lhs_lit*rhs_lit) & 0x7fff));
+    literal rhs_lit = eval_two_lits(curr);
+    return builtin_2c_result(LIT_TO_ATOM((other_lit*rhs_lit) & 0x7fff));
 }
 
 atom red_div(atom curr) __z88dk_fastcall
 {
-    uint32_t r = eval_two_lits(curr);
-    uint16_t lhs_lit = (uint16_t) (r >> 16);
-    uint16_t rhs_lit = (uint16_t) r;
-    return replace(curr,LIT_TO_ATOM((lhs_lit/rhs_lit) & 0x7fff));
+    literal rhs_lit = eval_two_lits(curr);
+    return builtin_2c_result(LIT_TO_ATOM((other_lit/rhs_lit) & 0x7fff));
 }
 
 atom red_eq(atom curr) __z88dk_fastcall
 {
-    uint32_t r = eval_two_lits(curr);
-    uint16_t lhs_lit = (uint16_t) (r >> 16);
-    uint16_t rhs_lit = (uint16_t) r;
-    return replace(curr,LIT_TO_ATOM(lhs_lit == rhs_lit ? LIT_K : LIT_F));
+    literal rhs_lit = eval_two_lits(curr);
+    return builtin_2c_result(LIT_TO_ATOM(other_lit==rhs_lit ? LIT_K : LIT_F));
 }
 
 atom red_lt(atom curr) __z88dk_fastcall
 {
-    uint32_t r = eval_two_lits(curr);
-    uint16_t lhs_lit = (uint16_t) (r >> 16);
-    uint16_t rhs_lit = (uint16_t) r;
-    return replace(curr,LIT_TO_ATOM(lhs_lit < rhs_lit ? LIT_K : LIT_F));
+    literal rhs_lit = eval_two_lits(curr);
+    return builtin_2c_result(LIT_TO_ATOM(other_lit < rhs_lit ? LIT_K : LIT_F));
 }
 
 reducer_fn reducers[] = {
