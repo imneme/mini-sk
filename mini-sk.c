@@ -590,7 +590,7 @@ int main()
     input_context = (void*) stdin;
 #endif
     SANITY_CHECK
-    printf("S/K/I/B/C/Y reduction engine\n");
+    printf("Mini-SK, combinators & more...\n");
 #ifndef TINY_VERSION
     printf("\nPredefined macros");
     { 
