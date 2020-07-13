@@ -237,14 +237,14 @@ typedef uint16_t atom;
 #define LIT_C   0x0304
 #define LIT_Y   0x0105
 #define LIT_P   0x0106
-#define LIT_pl  0x0207
-#define LIT_mi  0x0208
-#define LIT_tm  0x0209
-#define LIT_dv  0x020a
+#define LIT_pl  0x0307
+#define LIT_mi  0x0308
+#define LIT_tm  0x0309
+#define LIT_dv  0x030a
 #define LIT_F   0x020b  /* (K I) */
 #define LIT_J   0x020c  /* (C I) */
-#define LIT_eq  0x020d
-#define LIT_lt  0x020e
+#define LIT_eq  0x030d
+#define LIT_lt  0x030e
 #define LIT_END 0x0400
 
 struct repr {
@@ -785,8 +785,8 @@ literal other_lit;
 
 literal eval_two_lits(atom curr) __z88dk_fastcall
 {
-    atom reduced_lhs = reduce(NODE_ARG(rs_top_ptr[0]));
-    NODE_ARG(rs_top_ptr[0]) = reduced_lhs;
+    atom reduced_lhs = reduce(NODE_ARG(rs_top_ptr[1]));
+    NODE_ARG(rs_top_ptr[1]) = reduced_lhs;
     other_lit = IS_LIT(reduced_lhs) ? ATOM_TO_LIT(reduced_lhs) : 0;
     atom reduced_rhs = reduce(NODE_ARG(curr));
     NODE_ARG(curr) = reduced_lhs;
@@ -796,7 +796,12 @@ literal eval_two_lits(atom curr) __z88dk_fastcall
 
 atom builtin_2c_result(atom result) __z88dk_fastcall
 {
-    return replace(rs_top_ptr[1], result);
+    atom arg0 = NODE_ARG(rs_top_ptr[0]);
+    if (arg0 == LIT_TO_ATOM(LIT_I)) {
+	return replace(rs_top_ptr[2], result);
+    } else {
+	return replace(rs_top_ptr[2], alloc_app(copy_atom(arg0), result));
+    }
 }
 
 atom red_plus(atom curr) __z88dk_fastcall
