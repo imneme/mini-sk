@@ -304,7 +304,7 @@ void init_apps(void)
     for (i = 0; i < MAX_APPS; ++i) {
 	atom i_atom = INDEX_TO_ATOM(i);
 	NODE_FUNC(i_atom) = INDEX_TO_ATOM(i+1);
-	NODE_REFCOUNT(i_atom) = 0x8888;
+	SANITY_CHECKING(NODE_REFCOUNT(i_atom) = 0x8888;)
     }
     SANITY_CHECKING(NODE_REFCOUNT(INDEX_TO_ATOM(MAX_APPS)) = 0x9e37;)
     SANITY_CHECK
