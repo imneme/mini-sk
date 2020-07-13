@@ -236,7 +236,7 @@ typedef uint16_t atom;
 #define LIT_B   0x0303
 #define LIT_C   0x0304
 #define LIT_Y   0x0105
-#define LIT_P   0x0106
+#define LIT_P   0x0206
 #define LIT_pl  0x0307
 #define LIT_mi  0x0308
 #define LIT_tm  0x0309
@@ -784,7 +784,7 @@ atom red_putchar(atom curr) __z88dk_fastcall
     atom reduced = reduce(NODE_ARG(curr));
     NODE_ARG(curr) = reduced;
     putchar(IS_LIT(reduced) ? LIT_SUBTYPE(ATOM_TO_LIT(reduced)) : '*');
-    return replace(curr,LIT_TO_ATOM(LIT_I));
+    return replace(curr,copy_atom(NODE_ARG(rs_top_ptr[0])));
 }
 
 atom red_getchar(atom curr) __z88dk_fastcall
