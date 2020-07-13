@@ -323,8 +323,8 @@ void print_lit(literal lit) __z88dk_fastcall
 	&& LIT_REQARGS(reps[i].value) == LIT_REQARGS(lit)) {
 	c = reps[i].key;
     } else {
-	assert(LIT_REQARGS(lit) == 0);
-	c = i+'a';
+	c = i;
+	putchar('\'');
     }
     putchar(c);
 }
@@ -473,6 +473,8 @@ again:
 	atom rhs = read_atom();
 	return alloc_app(lhs,rhs);
     }
+    case '\'':
+	return LIT_TO_ATOM((unsigned char) getch());
     case '#': {
         short n = 0;
 	for (;;) {
@@ -521,7 +523,7 @@ again:
 #endif
     default:
 	if (c >= 'a' && c <= 'z')
-	    return LIT_TO_ATOM(c-'a');
+	    return LIT_TO_ATOM(c);
 	{
 	    unsigned char i;
 	    for (i = 0; i < (unsigned char) ARRAY_SIZE(reps); ++i)
