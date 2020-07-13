@@ -243,6 +243,8 @@ typedef uint16_t atom;
 #define LIT_dv  0x020a
 #define LIT_F   0x020b  /* (K I) */
 #define LIT_J   0x020c  /* (C I) */
+#define LIT_eq  0x020d
+#define LIT_lt  0x020e
 #define LIT_END 0x0400
 
 struct repr {
@@ -263,7 +265,9 @@ struct repr reps[] = {
     {'*', LIT_tm},
     {'/', LIT_dv},
     {'F', LIT_F},
-    {'J', LIT_J}
+    {'J', LIT_J},
+    {'=', LIT_eq},
+    {'<', LIT_lt}
 };
 
 struct app_node {
@@ -820,6 +824,22 @@ atom red_div(atom curr) __z88dk_fastcall
     return replace(curr,LIT_TO_ATOM((lhs_lit/rhs_lit) & 0x7fff));
 }
 
+atom red_eq(atom curr) __z88dk_fastcall
+{
+    uint32_t r = eval_two_lits(curr);
+    uint16_t lhs_lit = (uint16_t) (r >> 16);
+    uint16_t rhs_lit = (uint16_t) r;
+    return replace(curr,LIT_TO_ATOM(lhs_lit == rhs_lit ? LIT_K : LIT_F));
+}
+
+atom red_lt(atom curr) __z88dk_fastcall
+{
+    uint32_t r = eval_two_lits(curr);
+    uint16_t lhs_lit = (uint16_t) (r >> 16);
+    uint16_t rhs_lit = (uint16_t) r;
+    return replace(curr,LIT_TO_ATOM(lhs_lit < rhs_lit ? LIT_K : LIT_F));
+}
+
 reducer_fn reducers[] = {
     red_ident,
     red_const,
@@ -833,7 +853,9 @@ reducer_fn reducers[] = {
     red_times,
     red_div,
     red_false,
-    red_jump
+    red_jump,
+    red_eq,
+    red_lt
 };
 
 atom reduce(atom curr) __z88dk_fastcall
