@@ -627,6 +627,9 @@ int main()
 	}
 	print_atom(a); printf("\n--->\n");
     SANITY_CHECK
+#if defined(USE_MINILIB) && defined(__SPECTRUM)
+	input_prompt += 4;
+#endif
 	a = reduce(a);
     SANITY_CHECK
 	print_atom_reduced(a); putchar('\n');
