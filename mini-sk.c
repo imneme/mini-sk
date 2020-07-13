@@ -203,7 +203,7 @@ typedef struct app_node* atom;
 #define NODE_ARG(n)      ((n)->arg)
 #define NODE_REFCOUNT(n) ((n)->refcount)
 #define INDEX_TO_ATOM(i) &apps[i]
-#ifdef TINY_VERSION
+#ifndef TINY_VERSION
 #define IS_LIT(x) (!(((unsigned short) x) & 0x8000))
 #else
 #define IS_LIT(x) (((unsigned short) x) < 0x4000)
