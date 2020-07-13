@@ -318,17 +318,19 @@ uint8_t print_reduced = 0;
 
 void print_lit(literal lit) __z88dk_fastcall
 {
-    char c;
     unsigned char i;
     i = LIT_SUBTYPE(lit);
     if (i < ((unsigned char) ARRAY_SIZE(reps))
 	&& LIT_REQARGS(reps[i].value) == LIT_REQARGS(lit)) {
-	c = reps[i].key;
+	putchar(reps[i].key);
     } else {
-	c = i;
-	putchar('\'');
+	if (lit >= 32 && lit < 127) {
+	    putchar('\'');
+	    putchar(i);
+	} else {
+	    printf("%u", lit);
+	}
     }
-    putchar(c);
 }
 
 void print_atom(atom a) __z88dk_fastcall
@@ -524,6 +526,19 @@ again:
     }
 #endif
     default:
+	if (c >= '0' && c <= '9') {
+	    unsigned short num = 0;
+	    for (;;) {
+		num += c - '0';
+		c = getch();
+		if (c < '0' || c > '9')
+		    break;
+		num *= 10;
+	    }
+	    if (c != -1)
+		ungetch(c);
+	    return LIT_TO_ATOM(num & 0x7fff);
+	}
 	if (c >= 'a' && c <= 'z')
 	    return LIT_TO_ATOM(c);
 	{
