@@ -245,6 +245,7 @@ typedef uint16_t atom;
 #define LIT_J   0x020c  /* (C I) */
 #define LIT_eq  0x030d
 #define LIT_lt  0x030e
+#define LIT_G   0x010f
 #define LIT_END 0x0400
 
 struct repr {
@@ -267,7 +268,8 @@ struct repr reps[] = {
     {'F', LIT_F},
     {'J', LIT_J},
     {'=', LIT_eq},
-    {'<', LIT_lt}
+    {'<', LIT_lt},
+    {'G', LIT_G}
 };
 
 struct app_node {
@@ -781,6 +783,13 @@ atom red_putchar(atom curr) __z88dk_fastcall
     return replace(curr,LIT_TO_ATOM(LIT_I));
 }
 
+atom red_getchar(atom curr) __z88dk_fastcall
+{
+    atom arg0 = NODE_ARG(curr);
+    atom result = LIT_TO_ATOM(getchar());
+    return replace(curr, alloc_app(copy_atom(arg0), result));
+}
+
 literal other_lit;
 
 literal eval_two_lits(atom curr) __z88dk_fastcall
@@ -855,7 +864,8 @@ reducer_fn reducers[] = {
     red_false,
     red_jump,
     red_eq,
-    red_lt
+    red_lt,
+    red_getchar
 };
 
 atom reduce(atom curr) __z88dk_fastcall
