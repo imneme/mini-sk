@@ -237,6 +237,10 @@ typedef uint16_t atom;
 #define LIT_C   0x0304
 #define LIT_Y   0x0105
 #define LIT_P   0x0106
+#define LIT_pl  0x0207
+#define LIT_mi  0x0208
+#define LIT_tm  0x0209
+#define LIT_dv  0x020a
 #define LIT_END 0x0400
 
 struct repr {
@@ -251,7 +255,11 @@ struct repr reps[] = {
     {'B', LIT_B},
     {'C', LIT_C},
     {'Y', LIT_Y},
-    {'P', LIT_P}
+    {'P', LIT_P},
+    {'+', LIT_pl},
+    {'-', LIT_mi},
+    {'*', LIT_tm},
+    {'/', LIT_dv}
 };
 
 struct app_node {
@@ -753,6 +761,49 @@ atom red_putchar(atom curr) __z88dk_fastcall
     return replace(curr,LIT_TO_ATOM(LIT_I));
 }
 
+uint32_t eval_two_lits(atom curr) __z88dk_fastcall
+{
+    atom reduced_lhs = reduce(NODE_ARG(rs_top_ptr[0]));
+    NODE_ARG(rs_top_ptr[0]) = reduced_lhs;
+    atom reduced_rhs = reduce(NODE_ARG(curr));
+    NODE_ARG(curr) = reduced_lhs;
+    literal lhs_lit = IS_LIT(reduced_lhs) ? ATOM_TO_LIT(reduced_lhs) : 0;
+    literal rhs_lit = IS_LIT(reduced_rhs) ? ATOM_TO_LIT(reduced_rhs) : 0;
+    return (((uint32_t) lhs_lit) << 16) | rhs_lit;
+}
+
+atom red_plus(atom curr) __z88dk_fastcall
+{
+    uint32_t r = eval_two_lits(curr);
+    uint16_t lhs_lit = (uint16_t) (r >> 16);
+    uint16_t rhs_lit = (uint16_t) r;
+    return replace(curr,LIT_TO_ATOM((lhs_lit+rhs_lit) & 0x7fff));
+}
+
+atom red_minus(atom curr) __z88dk_fastcall
+{
+    uint32_t r = eval_two_lits(curr);
+    uint16_t lhs_lit = (uint16_t) (r >> 16);
+    uint16_t rhs_lit = (uint16_t) r;
+    return replace(curr,LIT_TO_ATOM((lhs_lit-rhs_lit) & 0x7fff));
+}
+
+atom red_times(atom curr) __z88dk_fastcall
+{
+    uint32_t r = eval_two_lits(curr);
+    uint16_t lhs_lit = (uint16_t) (r >> 16);
+    uint16_t rhs_lit = (uint16_t) r;
+    return replace(curr,LIT_TO_ATOM((lhs_lit*rhs_lit) & 0x7fff));
+}
+
+atom red_div(atom curr) __z88dk_fastcall
+{
+    uint32_t r = eval_two_lits(curr);
+    uint16_t lhs_lit = (uint16_t) (r >> 16);
+    uint16_t rhs_lit = (uint16_t) r;
+    return replace(curr,LIT_TO_ATOM((lhs_lit/rhs_lit) & 0x7fff));
+}
+
 reducer_fn reducers[] = {
     red_ident,
     red_const,
@@ -760,7 +811,11 @@ reducer_fn reducers[] = {
     red_compose,
     red_flip,
     red_y,
-    red_putchar
+    red_putchar,
+    red_plus,
+    red_minus,
+    red_times,
+    red_div
 };
 
 atom reduce(atom curr) __z88dk_fastcall
