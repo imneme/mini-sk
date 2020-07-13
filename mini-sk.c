@@ -190,7 +190,7 @@ typedef struct app_node* atom;
 
 #else
 
-#ifdef MINILIB
+#ifdef USE_MINILIB
 /* This version intended for the ZX Spectrum.  For the normal version, it is
  * required that apps lies in the high 32K of memory, as we use the high bit
  * set to detect app nodes.  (This rule is relaxed for the TINY_VERSION
