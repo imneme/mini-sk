@@ -275,7 +275,11 @@ struct repr reps[] = {
 struct app_node {
     atom func;
     atom arg;
+#ifdef TINY_VERSION
+    uint8_t refcount;
+#else
     uint16_t refcount;
+#endif
 };
 
 #ifndef MAX_APPS
