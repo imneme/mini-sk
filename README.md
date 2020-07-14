@@ -19,10 +19,9 @@ MIT License.
 ## Overview
 
 Expressing computation using combinator expressions was originally
-suggested by Moses Shoenfinkel in his 1924 paper _On the Building
-Blocks of Mathematical Logic_. In that paper, he suggested the
-following fundamental operators:
-
+suggested by [Moses Schönfinkel][1] in his 1924 paper [_On the
+Building Blocks of Mathematical Logic_][2].  In that paper, he
+suggested the following fundamental operators:
 ```
 (((S f) g) x) -> ((f x) (g x))    -- Fusion      [S]
 ((K x) y)     -> x                -- Constant    [C]
@@ -31,11 +30,13 @@ following fundamental operators:
 (((C f) x) y) -> ((f y) x)        -- Interchange [T]
 ```
 
-The letters in square brackets are the ones used by Schoenfinkel.  Schoenfinkel noted that S and K are suffient because they can implement the others as follows:
+The letters in square brackets are the ones used by Schönfinkel.
+Schönfinkel noted that S and K are suffient because they can implement
+the others as follows:
 ```
 ((S K) K)         ≡ I
-(((S (K f)) g) x) = (((B f) g) x)
-(((S f) (K x)) y) = (((C f) x) y)
+(((S (K f)) g) x) ≡ (((B f) g) x)
+(((S f) (K x)) y) ≡ (((C f) x) y)
 ```
 but in practice it is often preferable to use the full set as it avoids needless duplication of data, only to discard it with `K`.
 
@@ -271,3 +272,6 @@ zcc +zxn -no-cleanup -DUSE_MINILIB -DNDEBUG -SO3 --max-allocs-per-node200000 -cl
 ```
 zcc +zxn -DNDEBUG --max-allocs-per-node200000 -SO3 -startup=8 -clib=sdcc_iy mini-sk.c -o mini-sk -zorg:24064 -pragma-define:CRT_ITERM_INKEY_REPEAT_START=8000 -pragma-define:CRT_ITERM_INKEY_REPEAT_RATE=250 -pragma-redirect:CRT_OTERM_FONT_FZX=_ff_dkud1_Sinclair -create-app
 ```
+
+[1]: https://en.wikipedia.org/wiki/Moses_Schönfinkel "Wikipedia"
+[2]: https://courses.engr.illinois.edu/cs522/sp2016/OnTheBuildingBlocksOfMathematicalLogic.pdf "English translation, PDF"
