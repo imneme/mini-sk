@@ -1,12 +1,27 @@
 # Mini-SK
 
-Mini-SK, a S/K/I/B/C combinator reduction machine.
+Mini-SK is provides a functional programming environment in the form
+of an S/K/I/B/C combinator reduction machine. It specifically targets
+“small” machines of the past including the ZX Spectrum with most data
+sizes limited to 16 bits.  The code is written in C89 (ANSI C) to
+allow it to be compiled with older compilers on ancient systems.  It
+also runs happily on modern 32-bit and 64-bit computers, however.
 
-Copyright 2020, Melissa O'Neill.  Distributed under the MIT License.
+Dispite its simplicity, Mini-SK provides many of the features we'd
+normally expect from a functional language, including full laziness
+(expressions are only evaluated when needed, and only once even if
+they are shared).  Efficient tail recursion is intrinsically
+supported.
 
-This program implements an evaluator to evaluate combinator expressions, as
-originally suggested by Moses Shoenfinkel in his 1924 paper _On the
-Building Blocks of Mathematical Logic_, where:
+Mini-SK is copyright 2020, Melissa O'Neill and distributed under the
+MIT License.
+
+## Overview
+
+Expressing computation using combinator expressions was originally
+suggested by Moses Shoenfinkel in his 1924 paper _On the Building
+Blocks of Mathematical Logic_. In that paper, he suggested the
+following fundamental operators:
 
 ```
 (((S f) g) x) -> ((f x) (g x))    -- Fusion      [S]
@@ -16,26 +31,47 @@ Building Blocks of Mathematical Logic_, where:
 (((C f) x) y) -> ((f y) x)        -- Interchange [T]
 ```
 
-The letters in square brackets are the ones used by Schoenfinkel.
+The letters in square brackets are the ones used by Schoenfinkel.  Schoenfinkel noted that S and K are suffient because they can implement the others as follows:
+```
+((S K) K)         ≡ I
+(((S (K f)) g) x) = (((B f) g) x)
+(((S f) (K x)) y) = (((C f) x) y)
+```
+but in practice it is often preferable to use the full set as it avoids needless duplication of data, only to discard it with `K`.
 
-Mini-SK does not support the omitting implied parentheses, thus to evaluate
-for example, S K K S, it must be entered as
-```
-(((S K) K) S)
-```
-or
-```
-@@@SKKS
-```
+Elsewhere in the literature, the many of the parentheses shown above
+are omitted, writing `S K K S` instead of `(((S K) K) S)`.  In the
+interests of keeping its parser as simple as possible, Mini-SK does
+not support the omitting implied parentheses.  You can however, enter
+omit redundant spaces, and enter applications using the `@` sign, thus
+you may write the above as for example `@@@SKKS`.  You can mix both
+notations, and in fact, `@` and `(` are synonyms, and close parentheses
+are optional and ignored!
 
-In addition, the implementation supports placeholders a..z that can be
-passed into expressions, and church numerals, entered as # followed by the
-number, such as `#10`.  A number of pre-written expressions are provided,
-enter as $name, such as `$t` for true.
+In addition, the implementation supports placeholders `a`..`z` that can be
+passed into expressions to understand what they do and perform
+computations, (thus `((K a) b)` reduces to `a`), and Church numerals,
+entered as # followed by the number, such as `#10`.  A number of
+pre-written expressions are provided as macros that are expanded by
+the parser (except for the version for the 16K ZX Spectrum where they
+are omitted to save space).  These macros are entered as enter as `$`
+immediately followed by a descriptive name, such as `$t` for true, or
+`$quicksort` for the QuickSort algorithm.
 
-Mini-SK is designed to be simple and minimal, specifically targetting
-“small” machines of the past.  The code is written in C89 (ANSI C) to allow
-it to be compiled with older compilers on ancient systems.
+### Scope and Features
+
+Although the S/K/I/B/C combinators may seem primitive, they are
+sufficient to compute all computable functions.  In version 1.0 of
+Mini-SK, these combinators are all that are supported, but a number of
+predefined examples are available as convenience macros, allowing you
+to experiment with lists, QuickSort, and even other languages such as
+Jot without needing to type in complex and cryptic expressions.
+
+Version 1.2 extends the minimal base by providing programmer-friendly
+features, such as built-in binary numbers, and I/O facilities.  In
+this version, the lower-case letter placeholders become just an
+alternative way to express character constants, in other words `x` is
+just another way of saying `'x`.
 
 ## Demos
 
@@ -46,13 +82,17 @@ memory).
 ## Literals, Arithmetic and I/O
 
 The combinators `S`, `K`, `I`, etc. are literals, but there are 32768
-possible literals and all can be entered.  Characters are entered with
-a leading quote and then the next character read is the literal.
-Numbers can also be entered.  Because the default printer knows
-nothing of what a literal value is intended to mean, if the value
-matches a combinator it is printed as that combinator, and if it is in
-the range of printable ASCII, it is printed as a character literal,
-otherwise it is shown as an integer.
+possible literals and all can be entered.  In version 1.2 and beyond,
+characters are entered with a leading quote and then the next
+character read is the literal even if it is whitespace.  Numbers can
+also be entered in their usual decimal form.  
+
+Because the printer used by the REPL knows nothing of what a literal
+value is intended to mean, it adopts a heuristic approach for printing
+literals: if the value matches the code used for a combinator it is
+printed as that combinator, and if it is in the range of printable
+ASCII, it is printed as a character literal, otherwise it is shown as
+an integer.
 
 Generally, except for the combinators, you should not attempt to
 _apply_ a literal to another value and evaluate the result.  That
@@ -144,7 +184,10 @@ numeral version, with explicit recursion, decrementing, and tests
 against zero for completion.  It does, however, run in constant space
 regardless of the size of the number.
 
+## Installing
 
+Prebuilt binaries are provided with releases for ZX Spectrum variants and
+for macOS and x86 Linux.
 
 ## Building
 
@@ -157,8 +200,8 @@ Optional defines
 
 * `-DUSE_MINILIB`
 
-    Under z88dk (Z80), Minilib provides an alternative crt and stdio
-    library to minimize space usage.
+    Under z88dk (Z80), [MiniLib](https://github.com/imneme/spectrum-minilib)
+    provides an alternative crt and stdio library to minimize space usage.
 
 * `-DDEBUG`
 
