@@ -197,6 +197,13 @@ numeral version, with explicit recursion, decrementing, and tests
 against zero for completion.  It does, however, run in constant space
 regardless of the size of the number.
 
+### Additional Combinators
+
+For convenience the system provides two additional combinators:
+
+* `F` (false) is equivalent to `(K I)`, such that `((F x) y)` → `y`.
+* `J` (jump) is equivalent to `(C I)`, such that `((J x) y)` → `(y x)`.
+
 ## Installing
 
 Prebuilt binaries are provided with releases for ZX Spectrum variants and
