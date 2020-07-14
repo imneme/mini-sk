@@ -153,7 +153,7 @@ the addition operator to perform the addition as we go.
 ```
 
 The code below gets a character from input and prints it out, and then
-returns the edentity function.
+returns the identity function.
 ```
 (G (P I))
 ```
@@ -162,9 +162,21 @@ and this version adds a newline afterwards
 (G (P ((P I) 10)))
 ```
 
+The code below runs forever, copying standard input to standard output:
+```
+(Y ((B G) P))
+```
+and this code (which can be entered as `@Y@@BG@C$cons`) turns input
+into in infinite list of characters that can be read using `$hd`,
+`$tail`, etc.
+```
+(Y ((B G) (C ((B C) J))))
+```
+
 In subsequent examples, we'll use the `@` shorthand for most applications.
 
-This code prints 243 (3^5) 'x's, followed by a newline (ASCII 10), and
+
+The code below prints 243 (3^5) 'x's, followed by a newline (ASCII 10), and
 returns the identity function as its result.
 ```
 @@(#5 #3) @@CP'x @@PI10
@@ -175,7 +187,8 @@ from the user
 @@G@@B(#5 #3) @CP @@PI10
 ```
 
-Finally, this code outputs a number of 'x's counted not using Church numerals but built in numbers.
+Finally, this code outputs a number of 'x's counted not using Church
+numerals but built in numbers.
 ```
 @@@@@BY@@B@B@S@@C@@C@=I0I@@C@@BC@@B@BC@@B@B-@C@@BC@BP1'x243@@PI10
 ```
